@@ -1,0 +1,6 @@
+let peerInfo = {
+                commonPrefix: '',
+                ip: peer.ip,
+                port: peer.port,
+                id: peer.id
+            };
