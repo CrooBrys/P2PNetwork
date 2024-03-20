@@ -4,11 +4,11 @@ let welcomePacket = require('./welcomePacket');
 let BucketHelper = require('./bucketHelper');
 // Exporting class
 module.exports = {
-    // sock class
-    sock : class {
+    // Peer class
+    Peer : class {
         // Constructor
         constructor(name) {
-            // sock information
+            // Peer information
             this.name = name;
             this.ip = "127.0.0.1";
             this.port = '';
@@ -22,17 +22,10 @@ module.exports = {
 
 
 
-        // When sock joins
+        // When peer joins
         handleClientJoining(sock) {
 
-            // Print joining sock information
-            console.log(`${sock.name} joined the network.`);
-            // Create and send welcome packet
-            let packet = welcomePacket.welcomePacket(0, this.name, []);
-            // Store new sock information in routing table
-            this.pushBucket(this.routingTable, sock);
-            // Print DHT table
-            this.printRoutingTable();
+            
         }
 
 
@@ -41,36 +34,36 @@ module.exports = {
 
 
 
-        // Method to put sock in k-bucket
-        pushBucket(routingTable, sock) {
+        // Method to put peer in k-bucket
+        pushBucket(routingTable, peer) {
             // Find k-bucket index
-            let index = BucketHelper.bucketIndex(this.id, sock.id);
-            //Adding common prefix to sock info
-            sock.commonPrefix = `P${index}`;
+            let index = BucketHelper.bucketIndex(this.id, peer.id);
+            //Adding common prefix to peer info
+            peer.commonPrefix = `P${index}`;
             // Check for empty k-bucket
             if (routingTable[index].length === 0) {
-                // Pushing sock info to bucket
-                routingTable[index].push(sock);
+                // Pushing peer info to bucket
+                routingTable[index].push(peer);
                 // Printing output to terminal
-                console.log(`Bucket P${index} has no value, adding ${sock.id}`);
+                console.log(`Bucket P${index} has no value, adding ${peer.id}`);
             } 
             // If the bucket is full
             else {
                 // Printing output to terminal
                 console.log(`Bucket P${index} is full, checking if we need to change the stored value`);
-                // Get old sock in routing table
-                let oldsock = routingTable[index][0];
+                // Get old peer in routing table
+                let oldPeer = routingTable[index][0];
                 //Getting distances
-                let newsockDistance = BucketHelper.XORDistance(this.id, sock.id);
-                let oldsockDistance = BucketHelper.XORDistance(this.id, oldsock.id);
-                // Checking if new sock is closer
-                if (newsockDistance < oldsockDistance) {
-                    // Replacing sock
-                    routingTable[index][0] = sock;
+                let newPeerDistance = BucketHelper.XORDistance(this.id, peer.id);
+                let oldPeerDistance = BucketHelper.XORDistance(this.id, oldPeer.id);
+                // Checking if new peer is closer
+                if (newPeerDistance < oldPeerDistance) {
+                    // Replacing peer
+                    routingTable[index][0] = peer;
                     // Printing output to terminal
-                    console.log(`${sock.id} is closer than our current stored value ${oldsock.id}, therfore we will update.`);
+                    console.log(`${peer.id} is closer than our current stored value ${oldPeer.id}, therfore we will update.`);
                 } 
-                // If new sock is not closer
+                // If new peer is not closer
                 else {
                     // Printing output to terminal
                     console.log(`Current value is closest, no update needed`);
@@ -86,16 +79,16 @@ module.exports = {
                 // Checking if bucket is not empty
                 if (bucket.length > 0) {
                     // Getting bucket
-                    let sock = bucket[0];
+                    let peer = bucket[0];
                     // Printing bucket info
-                    console.log(`[${sock.commonPrefix}, ${sock.ip}:${sock.port}, ${sock.id}]`);
+                    console.log(`[${peer.commonPrefix}, ${peer.ip}:${peer.port}, ${peer.id}]`);
                 }
             });
         }
         // Generating id
         generateID(){
             // Assigning id
-            this.id = singleton.getsockID(this.ip, this.port)
+            this.id = singleton.getPeerID(this.ip, this.port)
         }
     }
 };
