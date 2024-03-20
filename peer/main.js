@@ -14,34 +14,24 @@ let name = process.argv[3];
 // Creating peer
 let peer = new Peer(name);
 
-
-
-
-
-
-
 // Create TCP server
 let server = net.createServer((socket) => {
-    // Handling peer connections
-    // Implement your connection handling logic here
+    // On connection call method
+    peer.handleClientJoining(socket);
 });
-
-
-
-
-
-
-
 
 // Begin server listening
 server.listen(0, '127.0.0.1', () => {
     // Get assignedPort from kenel
     let assignedPort = server.address().port;
-    // Give peer port
+    // Assigning port
     peer.port = assignedPort;
+    // Setting peer id
+    peer.generateID();
     // Print out the assigned assignedPort number
     console.log(`This peer address is ${peer.ip}:${peer.port} located at server [${peer.id}]`);
 });
+
 
 //
 // if (process.argv.length == 6 & process.argv[5] == '-p') {
