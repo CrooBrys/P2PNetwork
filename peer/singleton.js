@@ -1,24 +1,9 @@
 // Hash
 let crypto = require('crypto');
 // Variables
-let timer;
+let timer = 0;
 // Exporting code to other files
 module.exports = {
-    // Initialization
-    init : function() {
-        // Creating timer with a random value between 1 and 999
-       timer = Math.floor(Math.random() * 999) + 1;
-       // Creating timer interval
-       setInterval(() => {
-        // Incrementing
-        timer = timer + 1;
-       }, 10);
-    },
-    // Getting timer
-    getTimer : function() {
-        // Return
-        return timer;
-    },
     // Retrieving peer id
     getPeerID : function(ip, port) {
         // Creating string to hash
@@ -33,9 +18,5 @@ module.exports = {
         peerID = peerID.slice(0,8);
         // Returning
         return peerID;
-    },
-    // Start timer
-    startTimer : function() {
-
     }
 };

@@ -11,7 +11,7 @@ module.exports = {
         // ITP version
         storeBitPacket(packet, 9, 0, 4);
         // Message type 
-        storeBitPacket(packet, 1, 4, 7);
+        storeBitPacket(packet, 2, 4, 7);
         // Number of peers 
         storeBitPacket(packet, peerNum, 11, 9);
         // Length of name
