@@ -44,9 +44,22 @@ if (process.argv.length === 6 && process.argv[4] === '-p') {
         // Start server
         await startServer(sender.localPort);
         // Console output
-        console.log(`Recieved Welcome Message from ${parsedPacket.peerName} ${singleton.getPeerID(ip, port)} along with DHT\n`);
+        console.log(`Recieved Welcome Message from ${parsedPacket.peerName} ${singleton.getPeerID(ip, port)} along with DHT`);
         // Printing DHT
         printDHT(parsedPacket.peerList);
+        //Creating server peer
+        let serverPeer = {
+            commonPrefix: '',
+            ip: ip,
+            port: port,
+            id: (singleton.getPeerID(ip, port))
+        };
+        // Adding server to buckets
+        peer.pushBucket(peer.routingTable, serverPeer);
+        // Refreshing buckets with peer list
+        peer.refreshBucket(parsedPacket.peerList);
+        // Printing routing table
+        peer.printRoutingTable();
 
 
 

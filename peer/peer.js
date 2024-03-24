@@ -69,9 +69,13 @@ module.exports = {
         refreshBucket(peersList) {
             // Iterate over peer list
             peersList.forEach(peer => {
-                // Call pushBucket method for each peer
-                this.pushBucket(this.routingTable, peer);
+                if(peer.id !== this.id){
+                    // Call pushBucket method for each peer
+                    this.pushBucket(this.routingTable, peer);
+                };
             });
+            // Console output
+            console.log(`\nRefresh k-Bucket operation performed`);
         }
         // Method to put peer in k-bucket
         pushBucket(routingTable, peer) {
@@ -118,7 +122,7 @@ module.exports = {
         // Printing routing table
         printRoutingTable() {
             // Formatting
-            console.log("\nMy DHT:\n");
+            console.log("\nMy DHT:");
             // Iterating through table
             this.routingTable.forEach((bucket) => {
                 // Checking if bucket is not empty
