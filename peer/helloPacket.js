@@ -1,11 +1,11 @@
 // Exporting code to other files
 module.exports = {
     // Creating welcome packet
-    welcomePacket: function (peerNum, peerName, peersList) {
+    helloPacket: function (peerNum, peerName, peersList) {
         // Sender name length 
         let length = Buffer.byteLength(peerName, 'utf-8');
         // Calculate total packet length
-        let packetLength = 4 + 7 + 9 + 12 + (peerNum * 8) + length;
+        let packetLength = 4 + (peerNum * 8) + length;
         // Creating buffer object
         let packet = Buffer.alloc(packetLength);
         // ITP version
@@ -17,25 +17,27 @@ module.exports = {
         // Length of name
         storeBitPacket(packet, length, 20, 12);
         // Setting current offset
-        let offset = 32
+        let offset = 4;
         // Iterate over peer list
         peersList.forEach(peer => {
-            // Setting ip
-            let ip = peer.ip;
-            // Setting port
-            let port = peer.port;
-            // Peer ip
-            storeBitPacket(packet, ip, offset, 32);
+            // Split IP address
+            let parts = peer.ip.split('.');
+            // Convert to int
+            let ip = Buffer.from(parts.map(part => parseInt(part)));
+            // Write IP to buffer
+            ip.copy(packet, offset);
+            // Convert port string to integer
+            let port = parseInt(peer.port);
             // Increase offset
-            offset = offset + 32;
+            offset = offset + 4;
             // Peer port
-            storeBitPacket(packet, port, offset, 16);
+            packet.writeUInt16BE(port, offset);
             // Increase offset
-            offset = offset + 16;
+            offset = offset + 2;
             // Buffer
-            storeBitPacket(packet, 0, offset, 16);
+            storeBitPacket(packet, 0, offset, 2);
             // Increase offset
-            offset = offset + 16;
+            offset = offset + 2;
         });
         // Adding sender name to buffer
         packet.write(peerName, offset, length, 'utf-8');

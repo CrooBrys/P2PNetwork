@@ -2,7 +2,8 @@
 let net = require('net');
 let { Peer } = require('./peer');
 let singleton = require('./singleton');
-const { exit, off } = require('process');
+let { exit, off } = require('process');
+let helloPacket = require('./helloPacket');
 // Timestamp
 let timeStamp;
 // Creating timestamp with a random value between 1 and 999
@@ -60,6 +61,37 @@ if (process.argv.length === 6 && process.argv[4] === '-p') {
         peer.refreshBucket(parsedPacket.peerList);
         // Printing routing table
         peer.printRoutingTable();
+        // Peer number variable
+        let peerNum = 0;
+        // Peer array
+        let peerList = [];
+        // Iterating through routing table
+        for (let i = 0; i < peer.routingTable.length; i++) {
+            // Checking for peer
+            if (peer.routingTable[i].length === 1) {
+                // Incrementing peerNum
+                peerNum++;
+                // Pushing to array
+                peerList.push(peer.routingTable[i][0]);
+            }
+        }
+        // Creating hello packet
+        let myHelloPacket = helloPacket.helloPacket(peerNum, peer.name, peerList);
+        // Sending to server
+        await sender.write(myHelloPacket);
+        // Ending connection
+        sender.end();
+        // Iterating through peers
+        // peerList.forEach(peer => {
+        //     let sendIp = peer.ip;
+        //     let sendPort = peer.port;
+        //     // Connect to peer
+        //     let helloPeer = net.createConnection({ host: sendIp, port: parseInt(sendPort) });
+
+        // })
+        // Console output
+        console.log(`\nHello packet has been sent`)
+
 
 
 
@@ -112,20 +144,27 @@ function fullPacketParse(packet){
     // Peer list
     let peerList = [];
     // Setting current offset
-    let offset = 32
+    let offset = 4;
     // Iterating through peer info
-    for(let i = 0; i < peerNum; i++){
+    for (let i = 0; i < peerNum; i++) {
+        // Reading buffer
+        let ip1 = packet.readUInt8(offset);
+        let ip2 = packet.readUInt8(offset + 1);
+        let ip3 = packet.readUInt8(offset + 2);
+        let ip4 = packet.readUInt8(offset + 3);
+        let ip = `${ip1}.${ip2}.${ip3}.${ip4}`;
+        let port = packet.readUInt16BE(offset + 4).toString();
         // Creating peer object
         let peer = {
             commonPrefix: '',
-            ip: parseBitPacket(packet, offset, 32),
-            port: parseBitPacket(packet, offset + 32, 16),
-            id: singleton.getPeerID(parseBitPacket(packet, offset, 32), parseBitPacket(packet, offset + 32, 16))
+            ip: ip,
+            port: port,
+            id: singleton.getPeerID(ip, port)
         }
         // Pushing to array
         peerList.push(peer);
         // Increasing offset
-        offset = offset + 64;
+        offset = offset + 8;
     }
     // Getting peer name
     let peerName = packet.toString('utf-8', offset, offset + length);

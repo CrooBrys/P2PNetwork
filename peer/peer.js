@@ -55,6 +55,11 @@ module.exports = {
             this.pushBucket(this.routingTable, peer);
             // Console output
             this.printRoutingTable();
+            // Getting hello packet
+            sock.on('data', (data) => {
+                let hello = this.fullPacketParse(data);
+                console.log(hello);
+            })
 
 
 
@@ -134,10 +139,87 @@ module.exports = {
                 }
             });
         }
+        // Printing DHT
+        printDHT(peerList) {
+            // If peerlist not empty
+            if (peerList.length > 0) {
+                // Iterating through peerList
+                peerList.forEach((peer) => {
+                    // Console output
+                    console.log(`[${peer.ip}:${peer.port}, ${peer.id}]\n`);
+                });
+            } 
+            // If empty
+            else {
+                console.log("[]\n");
+            }
+        }
         // Generating id
         generateID(){
             // Assigning id
             this.id = singleton.getPeerID(this.ip, this.port)
+        }
+        // Parse entire packet and return object of all values
+        fullPacketParse(packet){
+            // Parse version
+            let version = this.parseBitPacket(packet, 0, 4);
+            // Parse type
+            let type = this.parseBitPacket(packet, 4, 7);
+            // Parse peer number
+            let peerNum = this.parseBitPacket(packet, 11, 9);
+            // Parse length of name
+            let length = this.parseBitPacket(packet, 20, 12);
+            // Peer list
+            let peerList = [];
+            // Setting current offset
+            let offset = 4;
+            // Iterating through peer info
+            for (let i = 0; i < peerNum; i++) {
+                // Reading buffer
+                let ip1 = packet.readUInt8(offset);
+                let ip2 = packet.readUInt8(offset + 1);
+                let ip3 = packet.readUInt8(offset + 2);
+                let ip4 = packet.readUInt8(offset + 3);
+                let ip = `${ip1}.${ip2}.${ip3}.${ip4}`;
+                let port = packet.readUInt16BE(offset + 4).toString();
+                // Creating peer object
+                let peer = {
+                    commonPrefix: '',
+                    ip: ip,
+                    port: port,
+                    id: singleton.getPeerID(ip, port)
+                }
+                // Pushing to array
+                peerList.push(peer);
+                // Increasing offset
+                offset = offset + 8;
+            }
+            // Getting peer name
+            let peerName = packet.toString('utf-8', offset, offset + length);
+            // Return object of packet values
+            return {
+                version: version,
+                type: type,
+                peerNum: peerNum,
+                length: length,
+                peerList: peerList,
+                peerName: peerName
+            };
+        }
+        // **************** //
+        // Provided Methods //
+        // **************** //
+        // Returns the integer value of the extracted bits fragment for a given packet
+        parseBitPacket(packet, offset, length) {
+            let number = "";
+            for (var i = 0; i < length; i++) {
+                // let us get the actual byte position of the offset
+                let bytePosition = Math.floor((offset + i) / 8);
+                let bitPosition = 7 - ((offset + i) % 8);
+                let bit = (packet[bytePosition] >> bitPosition) % 2;
+                number = (number << 1) | bit;
+            }
+            return number;
         }
     }
 };
