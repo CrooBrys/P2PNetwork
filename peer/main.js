@@ -99,7 +99,6 @@ if (process.argv.length === 6 && process.argv[4] === '-p') {
             console.log(peer);
             // Do not send to connected server
             if(singleton.getPeerID(sendIp, sendPort) !== singleton.getPeerID(ip, port)){
-                console.log('im here')
                 // Connect to peer
                 let helloPeer = net.createConnection({ host: sendIp, port: parseInt(sendPort)});
                 // Listen for the 'connect' event
