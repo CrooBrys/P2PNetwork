@@ -25,7 +25,7 @@ module.exports = {
             // Finding peer port
             let port = sock.remotePort;
             // Console output
-            console.log(`Connected from peer ${ip}:${port}\n`);
+            console.log(`Connected from peer ${ip}:${port}`);
             // Peer number variable
             let peerNum = 0;
             // Peer array
@@ -55,20 +55,27 @@ module.exports = {
             this.pushBucket(this.routingTable, peer);
             // Console output
             this.printRoutingTable();
-            // Getting hello packet
+            // On data
             sock.on('data', (data) => {
+                // Getting hello packet
                 let hello = this.fullPacketParse(data);
-                console.log(hello);
+                // Console output
+                console.log(`\nRecieved Hello Message from ${hello.peerName} ${peer.id} along with DHT`);
+                // Print DHT
+                this.printDHT(hello.peerList);
+                // Push sender
+                this.pushBucket(this.routingTable, peer);
+                // Refresh bucket with DHT
+                this.refreshBucket(hello.peerList);
+                // Print routing table
+                this.printRoutingTable();
             })
-
-
-
-
-
-
-
         }
 
+
+
+
+        
 
         // Refresh buckets
         refreshBucket(peersList) {
@@ -99,12 +106,12 @@ module.exports = {
                 // Pushing peer info to bucket
                 routingTable[index].push(peerInfo);
                 // Printing output to terminal
-                console.log(`Bucket P${index} has no value, adding ${peerInfo.id}`);
+                console.log(`\nBucket P${index} has no value, adding ${peerInfo.id}`);
             } 
             // If the bucket is full
             else {
                 // Printing output to terminal
-                console.log(`Bucket P${index} is full, checking if we need to change the stored value`);
+                console.log(`\nBucket P${index} is full, checking if we need to change the stored value`);
                 // Get old peer in routing table
                 let oldPeer = routingTable[index][0];
                 //Getting distances
@@ -146,7 +153,7 @@ module.exports = {
                 // Iterating through peerList
                 peerList.forEach((peer) => {
                     // Console output
-                    console.log(`[${peer.ip}:${peer.port}, ${peer.id}]\n`);
+                    console.log(`[${peer.ip}:${peer.port}, ${peer.id}]`);
                 });
             } 
             // If empty

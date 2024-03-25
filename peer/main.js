@@ -81,6 +81,9 @@ if (process.argv.length === 6 && process.argv[4] === '-p') {
         await sender.write(myHelloPacket);
         // Ending connection
         sender.end();
+
+
+
         // Iterating through peers
         // peerList.forEach(peer => {
         //     let sendIp = peer.ip;
@@ -89,6 +92,9 @@ if (process.argv.length === 6 && process.argv[4] === '-p') {
         //     let helloPeer = net.createConnection({ host: sendIp, port: parseInt(sendPort) });
 
         // })
+
+
+
         // Console output
         console.log(`\nHello packet has been sent`)
 
@@ -185,12 +191,12 @@ function printDHT(peerList) {
         // Iterating through peerList
         peerList.forEach((peer) => {
             // Console output
-            console.log(`[${peer.ip}:${peer.port}, ${peer.id}]\n`);
+            console.log(`[${peer.ip}:${peer.port}, ${peer.id}]`);
         });
     } 
     // If empty
     else {
-        console.log("[]\n");
+        console.log("[]");
     }
 }
 // **************** //
