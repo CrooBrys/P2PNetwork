@@ -71,6 +71,63 @@ module.exports = {
                 this.printRoutingTable();
             })
         }
+        // Recieving hello packet
+        helloRecieve(sock, ip, port) {
+            // Writing to sock
+            sock.write('ok');
+            // On data
+            sock.on('data', (data) => {
+                //Creating peer
+                let peer = {
+                    commonPrefix: '',
+                    ip: ip,
+                    port: port,
+                    id: (singleton.getPeerID(ip, port))
+                }
+                // Getting hello packet
+                let hello = this.fullPacketParse(data);
+                // Console output
+                console.log(`\nRecieved Hello Message from ${hello.peerName} ${peer.id} along with DHT`);
+                // Print DHT
+                this.printDHT(hello.peerList);
+                // Push sender
+                this.pushBucket(this.routingTable, peer);
+                // Refresh bucket with DHT
+                this.refreshBucket(hello.peerList);
+                // Print routing table
+                this.printRoutingTable();
+                })
+        }
+        // Method navigation
+        navigation(sock) {
+            // Count
+            let count = 0;
+            // Get data
+             sock.on('data', (data) => {
+                // If count is 0
+                if(count === 0) {
+                    // Decoding
+                    let option = data.toString('utf-8')
+                    // if meet
+                    if(option === "Meet") {
+                        // Method call
+                        this.handleClientJoining(sock);
+                    }
+                    // If hello
+                    else {
+                        // Convert the received buffer to a string
+                        let receivedData = data.toString('utf-8');
+                        // Split the received string by the delimiter to extract IP address and port
+                        let [receivedIP, receivedPort] = receivedData.split(':');
+                        // Method call
+                        this.helloRecieve(sock, receivedIP, receivedPort);
+                    }
+                }
+                // Incrementing count
+                count = count + 1;
+             })
+        }
+        
 
 
 
