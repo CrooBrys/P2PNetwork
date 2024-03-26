@@ -91,35 +91,8 @@ if (process.argv.length === 6 && process.argv[4] === '-p') {
         await sender.write(myHelloPacket);
         // Ending connection
         await sender.end();   
-        // Iterating through peers
-        peerList.forEach(peer => {
-            // Get ip and port
-            let sendIp = peer.ip;
-            let sendPort = peer.port;
-            // Do not send to connected server
-            if(singleton.getPeerID(sendIp, sendPort) !== singleton.getPeerID(ip, port)){
-                // Connect to peer
-                let helloPeer = net.createConnection({ host: sendIp, port: parseInt(sendPort)});
-                // Listen for the 'connect' event
-                helloPeer.on('connect', async () => {
-                    // Serialize IP address and port as strings separated by a delimiter
-                    let serializedData = `${myIP}:${myPort}`;
-                    // Convert the serialized string to a buffer
-                    bufferChoice = Buffer.from(serializedData, 'utf-8');
-                    // Writing choice
-                    await helloPeer.write(bufferChoice);
-                    // On data
-                    helloPeer.on('data', async (data) => {
-                        // Sending to server
-                        await helloPeer.write(myHelloPacket);
-                        // Ending connection
-                        await helloPeer.end(); 
-                    })
-                });
-            } 
-        })
-        // Console output
-        console.log(`\nHello packet has been sent`)
+        // Calling method
+        sendHello(peerList, ip, port, myIP, myPort, myHelloPacket);
     });
     // If error occurs
     sender.on('error', (err) => {
@@ -150,7 +123,7 @@ function startServer(port = 0){
         // Setting peer id
         peer.generateID();
         // Print out the assigned assignedPort number
-        console.log(`This peer is ${peer.ip}:${peer.port} located at ${peer.name} [${peer.id}]\n`);
+        console.log(`This peer address is ${peer.ip}:${peer.port} located at ${peer.name} [${peer.id}]`);
     });
 }
 // Parse entire packet and return object of all values
@@ -214,6 +187,38 @@ function printDHT(peerList) {
     else {
         console.log("[]");
     }
+}
+//Send hello
+function sendHello(peerList, ip, port, myIP, myPort, myHelloPacket){
+    // Iterating through peers
+    peerList.forEach(peer => {
+        // Get ip and port
+        let sendIp = peer.ip;
+        let sendPort = peer.port;
+        // Do not send to connected server
+        if(singleton.getPeerID(sendIp, sendPort) !== singleton.getPeerID(ip, port)){
+            // Connect to peer
+            let helloPeer = net.createConnection({ host: sendIp, port: parseInt(sendPort)});
+            // Listen for the 'connect' event
+            helloPeer.on('connect', async () => {
+                // Serialize IP address and port as strings separated by a delimiter
+                let serializedData = `${myIP}:${myPort}`;
+                // Convert the serialized string to a buffer
+                bufferChoice = Buffer.from(serializedData, 'utf-8');
+                // Writing choice
+                await helloPeer.write(bufferChoice);
+                // On data
+                helloPeer.on('data', async (data) => {
+                    // Sending to server
+                    await helloPeer.write(myHelloPacket);
+                    // Ending connection
+                    await helloPeer.end(); 
+                })
+            });
+        } 
+    })
+    // Console output
+    console.log(`\nHello packet has been sent`)
 }
 // **************** //
 // Provided Methods //

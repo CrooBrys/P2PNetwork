@@ -25,7 +25,7 @@ module.exports = {
             // Finding peer port
             let port = sock.remotePort;
             // Console output
-            console.log(`Connected from peer ${ip}:${port}`);
+            console.log(`\nConnected from peer ${ip}:${port}`);
             // Peer number variable
             let peerNum = 0;
             // Peer array
