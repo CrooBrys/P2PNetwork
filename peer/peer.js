@@ -127,20 +127,13 @@ module.exports = {
                 count = count + 1;
              })
         }
-        
-
-
-
-
-        
-
         // Refresh buckets
-        refreshBucket(peersList) {
+        refreshBucket(peersList, routingTable = this.routingTable) {
             // Iterate over peer list
             peersList.forEach(peer => {
                 if(peer.id !== this.id){
                     // Call pushBucket method for each peer
-                    this.pushBucket(this.routingTable, peer);
+                    this.pushBucket(routingTable, peer);
                 };
             });
             // Console output
